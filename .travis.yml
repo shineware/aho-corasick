@@ -1,0 +1,16 @@
+language: java
+
+jdk:
+  - oraclejdk7
+
+os:
+  - linux
+
+sudo: false
+
+cache:
+  directories:
+  - $HOME/.gradle
+
+script:
+  - ./gradlew build --continue
