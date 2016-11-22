@@ -12,6 +12,8 @@ cache:
   directories:
   - $HOME/.gradle
 
+before_script:
+  - gradle --version
+
 script:
-  - ./gradlew --version
   - ./gradlew build --continue
