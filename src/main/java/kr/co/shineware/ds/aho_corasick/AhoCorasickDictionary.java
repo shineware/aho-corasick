@@ -1,17 +1,12 @@
 package kr.co.shineware.ds.aho_corasick;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import kr.co.shineware.ds.aho_corasick.model.AhoCorasickNode;
 
 public class AhoCorasickDictionary<V> {
+
 	private AhoCorasickNode<V> root;
-	private AhoCorasickNode<V> currentNode;
 
 	public AhoCorasickDictionary(){
 		this.root = new AhoCorasickNode<>();
@@ -137,46 +132,40 @@ public class AhoCorasickDictionary<V> {
 		return node.getChildren() != null;
 	}
 
-	public void initCurrentNode(){
-		this.currentNode = null;
-	}
+	public Map<String,V> get(FindContext<V> context, char key){
+		final Map<String,V> resultMap = new HashMap<>();
 
-	public Map<String,V> get(char key){
-		Map<String,V> resultMap = new HashMap<>();
-		if(this.currentNode == null){
-			this.currentNode = this.root;
-		}
+		while (true) {
+			final AhoCorasickNode<V>[] children = context.getCurrentChildren();
 
-		while(true){
-			if(currentNode.getChildren() == null){
-				currentNode = currentNode.getFailNode();
-				if(currentNode == null){
+			if (children == null) {
+				final AhoCorasickNode<V> currentNode = context.getCurrentFailNode();
+				if (currentNode == null) {
 					return null;
 				}
 				continue;
 			}
-			int idx = this.retrieveNode(currentNode.getChildren(),key);
-			if(idx == -1){
-				if(currentNode == this.root){
-					currentNode = this.root;
-				}else{
-					currentNode = currentNode.getFailNode();
+
+			final int idx = this.retrieveNode(children, key);
+			if (idx == -1) {
+				if (context.getCurrentNode() != this.root) {
+					context.setCurrentNode(context.getCurrentFailNode());
 					continue;
 				}
-			}else{
-				AhoCorasickNode<V> childNode = currentNode.getChildren()[idx];
-				if(childNode.getValue() != null){
+			} else {
+				AhoCorasickNode<V> childNode = children[idx];
+
+				if (childNode.getValue() != null) {
 					resultMap.put(this.getKeyFromNode(childNode), childNode.getValue());
 				}
 
-				while(childNode.getFailNode() != null){
+				while (childNode.getFailNode() != null) {
 					if(childNode.getFailNode().getValue() != null){
 						resultMap.put(this.getKeyFromNode(childNode.getFailNode()), childNode.getFailNode().getValue());
 					}
 					childNode = childNode.getFailNode();
 				}
-				currentNode = currentNode.getChildren()[idx];
-//				currentNode = childNode;
+				context.setCurrentNode(children[idx]);
 			}
 			break;
 		}
@@ -196,32 +185,39 @@ public class AhoCorasickDictionary<V> {
 		return key;
 	}
 
-	public Map<String,V> get(String keys){
-		return this.get(keys.toCharArray());
+	public Map<String, V> get(String keys) {
+		return this.get(new FindContext<>(this.root), keys);
 	}
 
-	public Map<String,V> get(char[] keys) {
-		Map<String,V> resultMap = new HashMap<>();
-		if(currentNode == null){
-			currentNode = this.root;
-		}
-		for(int i=0;i<keys.length;i++){
-			char key = keys[i];
-			if(currentNode.getChildren() == null){
-				currentNode = currentNode.getFailNode();				
-				i--;				
+	public Map<String, V> get(char[] keys) {
+		return this.get(new FindContext<>(this.root), keys);
+	}
+
+	public Map<String,V> get(FindContext<V> context, String keys){
+		return this.get(context, keys.toCharArray());
+	}
+
+	public Map<String,V> get(FindContext<V> context, char[] keys) {
+		final Map<String,V> resultMap = new HashMap<>();
+
+		for (int i = 0; i < keys.length; i++) {
+			final char key = keys[i];
+			final AhoCorasickNode<V>[] children = context.getCurrentChildren();
+
+			if (children == null) {
+				context.setCurrentNode(context.getCurrentFailNode());
+				i--;
 				continue;
 			}
-			int idx = this.retrieveNode(currentNode.getChildren(),key);
-			if(idx == -1){
-				if(currentNode == this.root){
-					currentNode = this.root;
-				}else{
-					currentNode = currentNode.getFailNode();
+
+			final int idx = this.retrieveNode(children,key);
+			if (idx == -1) {
+				if (context.getCurrentNode() != this.root) {
+					context.setCurrentNode(context.getCurrentFailNode());
 					i--;
 				}
-			}else{				
-				AhoCorasickNode<V> childNode = currentNode.getChildren()[idx];				
+			} else {
+				AhoCorasickNode<V> childNode = children[idx];
 				if(childNode.getValue() != null){
 					resultMap.put(this.getKeyFromNode(childNode), childNode.getValue());
 				}
@@ -231,7 +227,7 @@ public class AhoCorasickDictionary<V> {
 					}					
 					childNode = childNode.getFailNode();
 				}
-				currentNode = currentNode.getChildren()[idx];
+				context.setCurrentNode(children[idx]);
 			}
 		}
 		if(resultMap.size() == 0){
@@ -348,13 +344,4 @@ public class AhoCorasickDictionary<V> {
 			queue.add(ahoCorasickNode);
 		}
 	}
-	
-	public boolean isRoot(){
-		if(this.currentNode.getParent() == null){
-			return true;
-		}else{
-			return false;
-		}
-	}
-
 }

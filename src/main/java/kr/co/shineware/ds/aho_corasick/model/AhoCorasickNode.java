@@ -66,9 +66,9 @@ public class AhoCorasickNode<V> implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return "AhoCorasickNode [children=" + children + ", parent=" + parent
-				+ ", failNode=" + failNode + ", key=" + key + ", value="
-				+ value + ", depth=" + depth + "]";
+		return ", key=" + key + ", value="
+			+ value + ", depth=" + depth + " [children=" + (children == null ? 0 : children.length) + ", parent=" + parent
+				+ ", failNode=" + failNode + "]";
 	}
 	
 	public void save(String filename) {
