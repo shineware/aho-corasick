@@ -132,7 +132,7 @@ public class AhoCorasickDictionary<V> {
 		return node.getChildren() != null;
 	}
 
-	public Map<String,V> get(FindContext<V> context, char key){
+	public Map<String,V> get(FindContext<V> context, char key) {
 		final Map<String,V> resultMap = new HashMap<>();
 
 		while (true) {
@@ -185,12 +185,16 @@ public class AhoCorasickDictionary<V> {
 		return key;
 	}
 
+	public FindContext<V> newFindContext() {
+		return new FindContext<>(this.root);
+	}
+
 	public Map<String, V> get(String keys) {
-		return this.get(new FindContext<>(this.root), keys);
+		return this.get(newFindContext(), keys);
 	}
 
 	public Map<String, V> get(char[] keys) {
-		return this.get(new FindContext<>(this.root), keys);
+		return this.get(newFindContext(), keys);
 	}
 
 	public Map<String,V> get(FindContext<V> context, String keys){
