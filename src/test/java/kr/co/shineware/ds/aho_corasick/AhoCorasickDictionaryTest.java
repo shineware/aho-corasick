@@ -18,6 +18,8 @@ public class AhoCorasickDictionaryTest {
 	private static String[] KEYS;
 	private static Integer[] VALS;
 
+	private static final AhoCorasickDictionary<Integer> dic = new AhoCorasickDictionary<>();
+
 	@BeforeClass
 	public static void setup() {
 		KEYS = new String[DATA_NUM];
@@ -27,6 +29,12 @@ public class AhoCorasickDictionaryTest {
 			KEYS[i] = Integer.toString(i);
 			VALS[i] = i;
 		}
+
+		for (int i = 0; i < KEYS.length; i++) {
+			dic.put(KEYS[i], VALS[i]);
+		}
+		dic.buildFailLink();
+
 		service = Executors.newFixedThreadPool(THREAD_NUM);
 	}
 
@@ -38,16 +46,35 @@ public class AhoCorasickDictionaryTest {
 	}
 
 	@Test
-	public void testSequentialGet() {
-		final AhoCorasickDictionary<Integer> dic = new AhoCorasickDictionary<>();
+	public void testGetWithSingleChar() {
 		for (int i = 0; i < KEYS.length; i++) {
-			dic.put(KEYS[i], VALS[i]);
-		}
-		dic.buildFailLink();
+			final FindContext<Integer> context = dic.newFindContext();
+			final String key = KEYS[i];
 
+			for (int j = 0; j < key.length(); j++) {
+				final String subKey = key.substring(0, j + 1);
+				assertEquals(expectedResultMapForGetWithSingleChar(subKey), dic.get(context, key.charAt(j)));
+			}
+		}
+	}
+
+	private static Map<String, Integer> expectedResultMapForGetWithSingleChar(final String key) {
+		final Map<String, Integer> expectedResult = new HashMap<>();
+		final int len = key.length();
+		for (int i = 0; i < len; i++) {
+			final String subKey = key.substring(i, len);
+			if (subKey.equals("0") || subKey.charAt(0) != '0') {
+				expectedResult.put(subKey, Integer.parseInt(subKey));
+			}
+		}
+		return expectedResult;
+	}
+
+	@Test
+	public void testSequentialGet() {
 		for (int i = 0; i < KEYS.length; i++) {
 			final Map<String, Integer> result = dic.get(KEYS[i]);
-			final Set<Integer> expectedResult = expectedResult(KEYS[i]);
+			final Set<Integer> expectedResult = expectedResultSet(KEYS[i]);
 
 			assertEquals(expectedResult, new HashSet<>(result.values()));
 		}
@@ -55,12 +82,6 @@ public class AhoCorasickDictionaryTest {
 
 	@Test
 	public void testConcurrentGet() throws ExecutionException, InterruptedException {
-		final AhoCorasickDictionary<Integer> dic = new AhoCorasickDictionary<>();
-		for (int i = 0; i < KEYS.length; i++) {
-			dic.put(KEYS[i], VALS[i]);
-		}
-		dic.buildFailLink();
-
 		final List<Future> futures = new ArrayList<>();
 		for (int i = 0; i < KEYS.length; i++) {
 			final int index = i;
@@ -73,12 +94,12 @@ public class AhoCorasickDictionaryTest {
 		}
 
 		for (int i = 0; i < futures.size(); i++) {
-			final Set<Integer> expectedResult = expectedResult(KEYS[i]);
+			final Set<Integer> expectedResult = expectedResultSet(KEYS[i]);
 			assertEquals(expectedResult, futures.get(i).get());
 		}
 	}
 
-	private static Set<Integer> expectedResult(final String str) {
+	private static Set<Integer> expectedResultSet(final String str) {
 		final Set<Integer> resultSet = new HashSet<>();
 
 		for (int subStrLen = 1; subStrLen < str.length() + 1; subStrLen++) {
