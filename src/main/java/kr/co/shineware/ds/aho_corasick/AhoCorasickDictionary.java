@@ -141,7 +141,7 @@ public class AhoCorasickDictionary<V> {
 			if (children == null) {
 				final AhoCorasickNode<V> currentNode = context.getCurrentFailNode();
 				if (currentNode == null) {
-					return null;
+					return new HashMap<>();
 				} else {
 					context.setCurrentNode(currentNode);
 				}
@@ -171,9 +171,7 @@ public class AhoCorasickDictionary<V> {
 			}
 			break;
 		}
-		if(resultMap.size() == 0){
-			return null;
-		}
+
 		return resultMap;
 	}	
 
@@ -208,9 +206,6 @@ public class AhoCorasickDictionary<V> {
 
 		for (int i = 0; i < keys.length; i++) {
 			resultMap.putAll(get(context, keys[i]));
-		}
-		if(resultMap.size() == 0){
-			return null;
 		}
 		return resultMap;
 	}
