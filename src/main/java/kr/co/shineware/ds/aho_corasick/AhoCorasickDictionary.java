@@ -197,6 +197,10 @@ public class AhoCorasickDictionary<V> {
 		return this.get(newFindContext(), keys);
 	}
 
+	public Map<String, V> get(char key) {
+		return this.get(newFindContext(), key);
+	}
+
 	public Map<String,V> get(FindContext<V> context, String keys){
 		return this.get(context, keys.toCharArray());
 	}
