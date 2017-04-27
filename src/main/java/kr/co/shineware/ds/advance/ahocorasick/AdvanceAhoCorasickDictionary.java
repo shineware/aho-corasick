@@ -81,11 +81,12 @@ public class AdvanceAhoCorasickDictionary<K,V> {
 		int idx = 0;
 		while(head<=tail){
 			idx = (head+tail)/2;
+
 			if(children[idx].getKey().hashCode() < key.hashCode()){
 				head = idx+1;
 			}else if(children[idx].getKey().hashCode() > key.hashCode()){
 				tail = idx-1;
-			}else if(children[idx].getKey() == key){
+			}else if(children[idx].getKey().hashCode() == key.hashCode()){
 				return idx;
 			}
 		}
@@ -128,8 +129,8 @@ public class AdvanceAhoCorasickDictionary<K,V> {
 		return node.getChildren() != null;
 	}
 
-	public Map<String,V> get(AdvanceFindContext<K,V> context, K key) {
-		final Map<String,V> resultMap = new HashMap<>();
+	public Map<List<K>,V> get(AdvanceFindContext<K,V> context, K key) {
+		final Map<List<K>,V> resultMap = new HashMap<>();
 
 		while (true) {
 			final AdvanceAhoCorasickNode<K,V>[] children = context.getCurrentChildren();
@@ -171,11 +172,11 @@ public class AdvanceAhoCorasickDictionary<K,V> {
 		return resultMap;
 	}
 
-	private String getKeyFromNode(AdvanceAhoCorasickNode<K,V> childNode){
+	private List<K> getKeyFromNode(AdvanceAhoCorasickNode<K,V> childNode){
 		AdvanceAhoCorasickNode<K,V> currentNode = childNode;
-		String key = "";
+		List<K> key = new ArrayList<>();
 		while(currentNode != this.root){
-			key = currentNode.getKey()+key;
+			key.add(0,currentNode.getKey());
 			currentNode = currentNode.getParent();
 		}
 		return key;
@@ -185,16 +186,16 @@ public class AdvanceAhoCorasickDictionary<K,V> {
 		return new AdvanceFindContext<>(this.root);
 	}
 
-	public Map<String, V> get(List<K> keys) {
+	public Map<List<K>, V> get(List<K> keys) {
 		return this.get(newFindContext(), keys);
 	}
 
-	public Map<String, V> get(K key) {
+	public Map<List<K>, V> get(K key) {
 		return this.get(newFindContext(), key);
 	}
 
-	public Map<String,V> get(AdvanceFindContext<K,V> context, List<K> keys) {
-		final Map<String,V> resultMap = new HashMap<>();
+	public Map<List<K>,V> get(AdvanceFindContext<K,V> context, List<K> keys) {
+		final Map<List<K>,V> resultMap = new HashMap<>();
 
 		for (int i = 0; i < keys.size(); i++) {
 			resultMap.putAll(get(context, keys.get(i)));
