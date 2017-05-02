@@ -123,6 +123,17 @@ public class AhoCorasickNode<V> implements Serializable{
 		}
 	}
 
+	public void load(InputStream inputStream){
+		ObjectInputStream dis;
+		try {
+			dis = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(inputStream)));
+			load(dis,true);
+			dis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void load(ObjectInputStream dis,boolean isRoot) throws Exception {
 		if(!isRoot){
