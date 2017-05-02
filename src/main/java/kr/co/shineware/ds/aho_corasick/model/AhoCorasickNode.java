@@ -1,12 +1,6 @@
 package kr.co.shineware.ds.aho_corasick.model;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -75,13 +69,24 @@ public class AhoCorasickNode<V> implements Serializable{
 		ObjectOutputStream dos;
 		try {
 			dos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(filename))));
-//			dos = new ObjectOutputStream(new BufferedOutputStream((new FileOutputStream(filename))));
 			write(dos,true);
 			dos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	public void save(File file) {
+		ObjectOutputStream dos;
+		try {
+			dos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
+			write(dos,true);
+			dos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void write(ObjectOutputStream dos,boolean isRoot) throws Exception {
 		if(!isRoot){
 			dos.writeChar(this.getKey());
@@ -106,6 +111,18 @@ public class AhoCorasickNode<V> implements Serializable{
 			e.printStackTrace();
 		}
 	}
+
+	public void load(File file){
+		ObjectInputStream dis;
+		try {
+			dis = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
+			load(dis,true);
+			dis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void load(ObjectInputStream dis,boolean isRoot) throws Exception {
 		if(!isRoot){
