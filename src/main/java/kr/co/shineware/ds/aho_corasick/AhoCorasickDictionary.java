@@ -1,6 +1,7 @@
 package kr.co.shineware.ds.aho_corasick;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.*;
 
 import kr.co.shineware.ds.aho_corasick.model.AhoCorasickNode;
@@ -26,6 +27,10 @@ public class AhoCorasickDictionary<V> {
 	}
 	public void load(File file){
 		root.load(file);
+	}
+
+	public void load(InputStream inputStream){
+		root.load(inputStream);
 	}
 
 	public void put(String keys,V value){
