@@ -1,14 +1,36 @@
-package kr.co.shineware.ds.aho_corasick.model.hash;
+package kr.co.shineware.ds.aho_corasick_hash;
 
+import kr.co.shineware.ds.aho_corasick_hash.model.AhoCorasickNode;
+
+import java.io.File;
+import java.io.InputStream;
 import java.util.*;
 
-public class AhoCorasickHashDictionary<V> {
+public class AhoCorasickDictionary<V> {
 
-    private AhoCorasickHashNode<V> root;
+    private AhoCorasickNode<V> root;
 
-    public AhoCorasickHashDictionary() {
-        this.root = new AhoCorasickHashNode<>();
+    public AhoCorasickDictionary() {
+        this.root = new AhoCorasickNode<>();
         this.root.setDepth(0);
+    }
+
+    public void save(String filename){
+        root.save(filename);
+    }
+    public void load(String filename){
+        root.load(filename);
+    }
+
+    public void save(File file){
+        root.save(file);
+    }
+    public void load(File file){
+        root.load(file);
+    }
+
+    public void load(InputStream inputStream){
+        root.load(inputStream);
     }
 
     public void put(String keys, V value) {
@@ -17,15 +39,15 @@ public class AhoCorasickHashDictionary<V> {
 
     @SuppressWarnings("unchecked")
     private void put(char[] keys, V value) {
-        AhoCorasickHashNode<V> currentNode = this.root;
+        AhoCorasickNode<V> currentNode = this.root;
         for (int i = 0; i < keys.length; i++) {
             char key = keys[i];
 
-            Map<Character, AhoCorasickHashNode<V>> children = currentNode.getChildren();
+            Map<Character, AhoCorasickNode<V>> children = currentNode.getChildren();
 
             if (children == null) {
                 children = new HashMap<>();
-                AhoCorasickHashNode<V> initNode = new AhoCorasickHashNode<>();
+                AhoCorasickNode<V> initNode = new AhoCorasickNode<>();
                 initNode.setParent(currentNode);
                 initNode.setDepth(i + 1);
                 initNode.setKey(key);
@@ -33,9 +55,9 @@ public class AhoCorasickHashDictionary<V> {
                 currentNode.setChildren(children);
                 currentNode = currentNode.getChildren().get(initNode.getKey());
             } else {
-                AhoCorasickHashNode<V> childNode = children.get(key);
+                AhoCorasickNode<V> childNode = children.get(key);
                 if (childNode == null) {
-                    childNode = new AhoCorasickHashNode<>();
+                    childNode = new AhoCorasickNode<>();
                     childNode.setParent(currentNode);
                     childNode.setDepth(i + 1);
                     childNode.setKey(key);
@@ -47,7 +69,7 @@ public class AhoCorasickHashDictionary<V> {
         currentNode.setValue(value);
     }
 
-    private int retrieveNode(AhoCorasickHashNode<V>[] children, char key) {
+    private int retrieveNode(AhoCorasickNode<V>[] children, char key) {
         int head = 0;
         int tail = children.length - 1;
         int idx = 0;
@@ -69,15 +91,15 @@ public class AhoCorasickHashDictionary<V> {
     }
 
     public V getValue(char[] keys) {
-        AhoCorasickHashNode<V> node = this.root;
+        AhoCorasickNode<V> node = this.root;
         for (int i = 0; i < keys.length; i++) {
             char key = keys[i];
-            Map<Character, AhoCorasickHashNode<V>> children = node.getChildren();
+            Map<Character, AhoCorasickNode<V>> children = node.getChildren();
             if (children == null) {
                 return null;
             }
 
-            AhoCorasickHashNode<V> childNode = children.get(key);
+            AhoCorasickNode<V> childNode = children.get(key);
 
             if (childNode == null) {
                 return null;
@@ -88,15 +110,15 @@ public class AhoCorasickHashDictionary<V> {
     }
 
     public boolean hasChild(char[] keys) {
-        AhoCorasickHashNode<V> node = this.root;
+        AhoCorasickNode<V> node = this.root;
         for (int i = 0; i < keys.length; i++) {
             char key = keys[i];
-            Map<Character, AhoCorasickHashNode<V>> children = node.getChildren();
+            Map<Character, AhoCorasickNode<V>> children = node.getChildren();
             if (children == null) {
                 return false;
             }
 
-            AhoCorasickHashNode<V> childNode = children.get(key);
+            AhoCorasickNode<V> childNode = children.get(key);
 
             if (childNode == null) {
                 return false;
@@ -106,14 +128,14 @@ public class AhoCorasickHashDictionary<V> {
         return node.getChildren() != null;
     }
 
-    public Map<String, V> get(FindHashContext<V> context, char key) {
+    public Map<String, V> get(FindContext<V> context, char key) {
         final Map<String, V> resultMap = new HashMap<>();
 
         while (true) {
-            final Map<Character, AhoCorasickHashNode<V>> children = context.getCurrentChildren();
+            final Map<Character, AhoCorasickNode<V>> children = context.getCurrentChildren();
 
             if (children == null) {
-                final AhoCorasickHashNode<V> currentNode = context.getCurrentFailNode();
+                final AhoCorasickNode<V> currentNode = context.getCurrentFailNode();
                 if (currentNode == null) {
                     return new HashMap<>();
                 } else {
@@ -122,7 +144,7 @@ public class AhoCorasickHashDictionary<V> {
                 continue;
             }
 
-            AhoCorasickHashNode<V> childNode = children.get(key);
+            AhoCorasickNode<V> childNode = children.get(key);
 
             if (childNode == null) {
                 if (context.getCurrentNode() != this.root) {
@@ -149,8 +171,8 @@ public class AhoCorasickHashDictionary<V> {
         return resultMap;
     }
 
-    private String getKeyFromNode(AhoCorasickHashNode<V> childNode) {
-        AhoCorasickHashNode<V> currentNode = childNode;
+    private String getKeyFromNode(AhoCorasickNode<V> childNode) {
+        AhoCorasickNode<V> currentNode = childNode;
         String key = "";
         while (currentNode != this.root) {
             key = currentNode.getKey() + key;
@@ -159,8 +181,8 @@ public class AhoCorasickHashDictionary<V> {
         return key;
     }
 
-    public FindHashContext<V> newFindHashContext() {
-        return new FindHashContext<>(this.root);
+    public FindContext<V> newFindHashContext() {
+        return new FindContext<>(this.root);
     }
 
     public Map<String, V> get(String keys) {
@@ -175,11 +197,11 @@ public class AhoCorasickHashDictionary<V> {
         return this.get(newFindHashContext(), key);
     }
 
-    public Map<String, V> get(FindHashContext<V> context, String keys) {
+    public Map<String, V> get(FindContext<V> context, String keys) {
         return this.get(context, keys.toCharArray());
     }
 
-    public Map<String, V> get(FindHashContext<V> context, char[] keys) {
+    public Map<String, V> get(FindContext<V> context, char[] keys) {
         final Map<String, V> resultMap = new HashMap<>();
 
         for (int i = 0; i < keys.length; i++) {
@@ -189,8 +211,8 @@ public class AhoCorasickHashDictionary<V> {
     }
 
     @SuppressWarnings("unused")
-    private void printNodeAndValue(AhoCorasickHashNode<V> childNode) {
-        AhoCorasickHashNode<V> currentNode = childNode;
+    private void printNodeAndValue(AhoCorasickNode<V> childNode) {
+        AhoCorasickNode<V> currentNode = childNode;
         String key = "";
         while (currentNode != this.root) {
             key = currentNode.getKey() + key;
@@ -201,8 +223,8 @@ public class AhoCorasickHashDictionary<V> {
     }
 
     public void buildFailLink() {
-        AhoCorasickHashNode<V> currentNode = this.root;
-        Queue<AhoCorasickHashNode<V>> queue = new LinkedList<>();
+        AhoCorasickNode<V> currentNode = this.root;
+        Queue<AhoCorasickNode<V>> queue = new LinkedList<>();
         queue.clear();
         queue.add(currentNode);
 
@@ -216,20 +238,20 @@ public class AhoCorasickHashDictionary<V> {
         }
     }
 
-    private void linkFailNode(AhoCorasickHashNode<V> currentNode) {
+    private void linkFailNode(AhoCorasickNode<V> currentNode) {
         if (currentNode == this.root) {
             ;
         } else if (currentNode.getParent() == this.root) {
             currentNode.setFailNode(this.root);
         } else {
-            AhoCorasickHashNode<V> travaseNode = currentNode.getParent().getFailNode();
+            AhoCorasickNode<V> travaseNode = currentNode.getParent().getFailNode();
             while (travaseNode != this.root) {
                 if (travaseNode.getChildren() == null) {
                     travaseNode = travaseNode.getFailNode();
                     continue;
                 }
                 //
-                AhoCorasickHashNode<V> childNode = travaseNode.getChildren().get(currentNode.getKey());
+                AhoCorasickNode<V> childNode = travaseNode.getChildren().get(currentNode.getKey());
                 if (childNode != null) {
                     currentNode.setFailNode(childNode);
                     break;
@@ -237,9 +259,9 @@ public class AhoCorasickHashDictionary<V> {
                 travaseNode = travaseNode.getFailNode();
             }
             if (currentNode.getFailNode() == null) {
-                AhoCorasickHashNode<V> childNode = this.root.getChildren().get(currentNode.getKey());
+                AhoCorasickNode<V> childNode = this.root.getChildren().get(currentNode.getKey());
                 if (childNode != null) {
-                    AhoCorasickHashNode<V> rootChildNode = childNode;
+                    AhoCorasickNode<V> rootChildNode = childNode;
                     currentNode.setFailNode(rootChildNode);
                 } else {
                     currentNode.setFailNode(this.root);
@@ -249,11 +271,11 @@ public class AhoCorasickHashDictionary<V> {
     }
 
     public void travaseNodes() {
-        AhoCorasickHashNode<V> currentNode = this.root;
-        Queue<AhoCorasickHashNode<V>> queue = new LinkedList<>();
+        AhoCorasickNode<V> currentNode = this.root;
+        Queue<AhoCorasickNode<V>> queue = new LinkedList<>();
         queue.clear();
         queue.add(currentNode);
-        Map<Integer, List<AhoCorasickHashNode<V>>> depthKeyMap = new HashMap<Integer, List<AhoCorasickHashNode<V>>>();
+        Map<Integer, List<AhoCorasickNode<V>>> depthKeyMap = new HashMap<Integer, List<AhoCorasickNode<V>>>();
         while (!queue.isEmpty()) {
             currentNode = queue.remove();
             this.logNode(depthKeyMap, currentNode);
@@ -263,10 +285,10 @@ public class AhoCorasickHashDictionary<V> {
             }
         }
         for (int i = 0; ; i++) {
-            List<AhoCorasickHashNode<V>> keyList = depthKeyMap.get(i);
+            List<AhoCorasickNode<V>> keyList = depthKeyMap.get(i);
             if (keyList == null) break;
             String keys = "";
-            for (AhoCorasickHashNode<V> ahoCorasickNode : keyList) {
+            for (AhoCorasickNode<V> ahoCorasickNode : keyList) {
                 String failNode = "";
                 if (ahoCorasickNode.getDepth() != 0) {
                     failNode = "(" + ahoCorasickNode.getFailNode().getDepth() + ":" + ahoCorasickNode.getFailNode().getKey() + ")";
@@ -277,19 +299,19 @@ public class AhoCorasickHashDictionary<V> {
         }
     }
 
-    private void logNode(Map<Integer, List<AhoCorasickHashNode<V>>> depthKeyMap,
-                         AhoCorasickHashNode<V> currentNode) {
-        List<AhoCorasickHashNode<V>> keyList = depthKeyMap.get(currentNode.getDepth());
+    private void logNode(Map<Integer, List<AhoCorasickNode<V>>> depthKeyMap,
+                         AhoCorasickNode<V> currentNode) {
+        List<AhoCorasickNode<V>> keyList = depthKeyMap.get(currentNode.getDepth());
         if (keyList == null) {
-            keyList = new ArrayList<AhoCorasickHashNode<V>>();
+            keyList = new ArrayList<AhoCorasickNode<V>>();
         }
         keyList.add(currentNode);
         depthKeyMap.put(currentNode.getDepth(), keyList);
     }
 
-    private void insertNodes(Queue<AhoCorasickHashNode<V>> queue,
-                             Collection<AhoCorasickHashNode<V>> ahoCorasickNodes) {
-        for (AhoCorasickHashNode<V> ahoCorasickNode : ahoCorasickNodes) {
+    private void insertNodes(Queue<AhoCorasickNode<V>> queue,
+                             Collection<AhoCorasickNode<V>> ahoCorasickNodes) {
+        for (AhoCorasickNode<V> ahoCorasickNode : ahoCorasickNodes) {
             queue.add(ahoCorasickNode);
         }
     }
