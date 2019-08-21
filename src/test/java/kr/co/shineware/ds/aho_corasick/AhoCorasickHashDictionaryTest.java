@@ -1,7 +1,7 @@
 package kr.co.shineware.ds.aho_corasick;
 
-import kr.co.shineware.ds.aho_corasick.model.hash.AhoCorasickHashDictionary;
-import kr.co.shineware.ds.aho_corasick.model.hash.FindHashContext;
+import kr.co.shineware.ds.aho_corasick_hash.AhoCorasickDictionary;
+import kr.co.shineware.ds.aho_corasick_hash.FindContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class AhoCorasickHashDictionaryTest {
 	private static String[] KEYS;
 	private static Integer[] VALS;
 
-	private static final AhoCorasickHashDictionary<Integer> dic = new AhoCorasickHashDictionary<>();
+	private static final AhoCorasickDictionary<Integer> dic = new AhoCorasickDictionary<>();
 
 	@BeforeClass
 	public static void setup() {
@@ -37,7 +37,7 @@ public class AhoCorasickHashDictionaryTest {
 	@Test
 	public void testGetWithSingleChar() {
 		for (int i = 0; i < KEYS.length; i++) {
-			final FindHashContext<Integer> context = dic.newFindHashContext();
+			final FindContext<Integer> context = dic.newFindHashContext();
 			final String key = KEYS[i];
 
 			for (int j = 0; j < key.length(); j++) {

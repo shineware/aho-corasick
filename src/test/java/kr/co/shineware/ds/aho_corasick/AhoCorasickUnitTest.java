@@ -1,12 +1,13 @@
 package kr.co.shineware.ds.aho_corasick;
 
-import kr.co.shineware.ds.aho_corasick.model.hash.AhoCorasickHashDictionary;
+import kr.co.shineware.ds.aho_corasick_hash.AhoCorasickDictionary;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AhoCorasickUnitTest {
+
     @Test
     public void test() {
 
@@ -18,11 +19,17 @@ public class AhoCorasickUnitTest {
 //        integerList.add(20);
 //        integerList.add(100);
 
-        AhoCorasickHashDictionary<Integer> dic = new AhoCorasickHashDictionary<>();
+        AhoCorasickDictionary<Integer> dic = new AhoCorasickDictionary<>();
         for (Integer integer : integerList) {
             dic.put(integer.toString(), integer);
         }
 
+        dic.buildFailLink();
+
+        dic.save("aho.model");
+
+        dic = new AhoCorasickDictionary<>();
+        dic.load("aho.model");
         dic.buildFailLink();
 
         for (Integer integer : integerList) {
@@ -43,7 +50,7 @@ public class AhoCorasickUnitTest {
 //        integerList.add(20);
 //        integerList.add(100);
 
-        AhoCorasickDictionary<Integer> dic = new AhoCorasickDictionary<>();
+        kr.co.shineware.ds.aho_corasick.AhoCorasickDictionary dic = new kr.co.shineware.ds.aho_corasick.AhoCorasickDictionary();
         for (Integer integer : integerList) {
             dic.put(integer.toString(), integer);
         }
