@@ -54,17 +54,21 @@ public class AhoCorasickSpeedTest {
     public void speedTest() throws Exception {
         Collection<String> wikiTitleWords = getWikiTitleEojeol();
         long begin = System.currentTimeMillis();
+        int totalCount=10;
         Set<String> wordSet = this.dictionaryMap.keySet();
 
-        for (String word : wordSet) {
-            Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
+        for(int i=0;i<10;i++) {
+            for (String word : wordSet) {
+                Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
+            }
+
+            for (String word : wikiTitleWords) {
+                Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
+            }
         }
 
-        for (String word : wikiTitleWords) {
-            Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
-        }
         long end = System.currentTimeMillis();
-        System.out.println(end-begin + "ms");
+        System.out.println((end-begin)/totalCount + "ms");
     }
 
     private Collection<String> getWikiTitleEojeol() throws Exception {
