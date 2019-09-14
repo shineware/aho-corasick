@@ -218,11 +218,51 @@ public class AhoCorasickDictionary<V> {
 		return this.get(context, keys.toCharArray());
 	}
 
-	public Map<String,V> get(FindContext<V> context, char[] keys) {
-		final Map<String,V> resultMap = new HashMap<>();
+//	public Map<String,V> get(FindContext<V> context, char[] keys) {
+//		final Map<String,V> resultMap = new HashMap<>();
+//
+//		for (int i = 0; i < keys.length; i++) {
+//			resultMap.putAll(get(context, keys[i]));
+//		}
+//		return resultMap;
+//	}
 
-		for (int i = 0; i < keys.length; i++) {
-			resultMap.putAll(get(context, keys[i]));
+	public Map<String,V> get(FindContext<V> context, char[] keys) {
+		Map<String,V> resultMap = new HashMap<>();
+		if(context.getCurrentNode() == null){
+			context.setCurrentNode(this.root);
+		}
+		for(int i=0;i<keys.length;i++){
+			char key = keys[i];
+			if(context.getCurrentNode().getChildren() == null){
+				context.setCurrentNode(context.getCurrentNode().getFailNode());
+				i--;
+				continue;
+			}
+			int idx = this.retrieveNode(context.getCurrentChildren(),key);
+			if(idx == -1){
+				if(context.getCurrentNode() == this.root){
+					context.setCurrentNode(this.root);
+				}else{
+					context.setCurrentNode(context.getCurrentNode().getFailNode());
+					i--;
+				}
+			}else{
+				AhoCorasickNode<V> childNode = context.getCurrentChildren()[idx];
+				if(childNode.getValue() != null){
+					resultMap.put(this.getKeyFromNode(childNode), childNode.getValue());
+				}
+				while(childNode.getFailNode() != null){
+					if(childNode.getFailNode().getValue() != null){
+						resultMap.put(this.getKeyFromNode(childNode.getFailNode()), childNode.getFailNode().getValue());
+					}
+					childNode = childNode.getFailNode();
+				}
+				context.setCurrentNode(context.getCurrentChildren()[idx]);
+			}
+		}
+		if(resultMap.size() == 0){
+			return null;
 		}
 		return resultMap;
 	}
