@@ -36,14 +36,10 @@ public class AhoCorasickSpeedTest {
 
         while ((line = br.readLine()) != null) {
             line = line.trim();
-            if (line.split("\t").length != 2) {
-                continue;
-            }
             String[] tokenEntry = line.split("\t");
 
-            String word = tokenEntry[0];
-            String[] morphes = tokenEntry[1].split(" ");
-            dictionaryMap.put(word, Arrays.asList(morphes));
+            String word = Arrays.asList(tokenEntry).get(0);
+            dictionaryMap.put(word, Arrays.asList(tokenEntry).subList(1, tokenEntry.length));
         }
 
         br.close();
@@ -54,10 +50,10 @@ public class AhoCorasickSpeedTest {
     public void speedTest() throws Exception {
         Collection<String> wikiTitleWords = getWikiTitleEojeol();
         long begin = System.currentTimeMillis();
-        int totalCount=10;
+        int totalCount = 10;
         Set<String> wordSet = this.dictionaryMap.keySet();
 
-        for(int i=0;i<10;i++) {
+        for (int i = 0; i < 10; i++) {
             for (String word : wordSet) {
                 Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
             }
@@ -68,7 +64,7 @@ public class AhoCorasickSpeedTest {
         }
 
         long end = System.currentTimeMillis();
-        System.out.println((end-begin)/totalCount + "ms");
+        System.out.println((end - begin) / totalCount + "ms");
     }
 
     private Collection<String> getWikiTitleEojeol() throws Exception {
@@ -77,7 +73,7 @@ public class AhoCorasickSpeedTest {
 
         String line;
 
-        while((line = br.readLine()) != null){
+        while ((line = br.readLine()) != null) {
             eojeolList.addAll(Arrays.asList(line.split(" ")));
         }
         br.close();
