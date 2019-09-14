@@ -218,7 +218,7 @@ public class AhoCorasickDictionary<V> {
 		return this.get(context, keys.toCharArray());
 	}
 
-//	public Map<String,V> get(FindContext<V> context, char[] keys) {
+//	public Map<String,V> getorigin(FindContext<V> context, char[] keys) {
 //		final Map<String,V> resultMap = new HashMap<>();
 //
 //		for (int i = 0; i < keys.length; i++) {
@@ -260,9 +260,6 @@ public class AhoCorasickDictionary<V> {
 				}
 				context.setCurrentNode(context.getCurrentChildren()[idx]);
 			}
-		}
-		if(resultMap.size() == 0){
-			return null;
 		}
 		return resultMap;
 	}
