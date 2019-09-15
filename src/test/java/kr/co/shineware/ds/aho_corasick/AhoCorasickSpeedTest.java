@@ -47,6 +47,33 @@ public class AhoCorasickSpeedTest {
     }
 
     @Test
+    public void speedCharTest() throws Exception {
+        Collection<String> wikiTitleWords = getWikiTitleEojeol();
+        long begin = System.currentTimeMillis();
+        int totalCount = 100;
+        Set<String> wordSet = this.dictionaryMap.keySet();
+
+        for (int i = 0; i < totalCount; i++) {
+//            for (String word : wordSet) {
+//                Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
+//            }
+
+            for (String word : wikiTitleWords) {
+                FindContext<List<String>> findContext = this.ahoCorasickDictionary.newFindContext();
+                char[] wordchars = word.toCharArray();
+                for (char wordchar : wordchars) {
+                    this.ahoCorasickDictionary.get(findContext, wordchar);
+                }
+//                Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
+            }
+            if (i % 10 == 0) {
+                System.out.println(i);
+            }
+        }
+
+    }
+
+    @Test
     public void speedTest() throws Exception {
         Collection<String> wikiTitleWords = getWikiTitleEojeol();
         long begin = System.currentTimeMillis();
