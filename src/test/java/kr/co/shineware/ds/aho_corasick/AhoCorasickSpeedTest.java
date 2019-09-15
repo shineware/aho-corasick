@@ -50,16 +50,19 @@ public class AhoCorasickSpeedTest {
     public void speedTest() throws Exception {
         Collection<String> wikiTitleWords = getWikiTitleEojeol();
         long begin = System.currentTimeMillis();
-        int totalCount = 10;
+        int totalCount = 100;
         Set<String> wordSet = this.dictionaryMap.keySet();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < totalCount; i++) {
             for (String word : wordSet) {
                 Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
             }
 
             for (String word : wikiTitleWords) {
                 Map<String, List<String>> morphList = this.ahoCorasickDictionary.get(word);
+            }
+            if(i%10 == 0){
+                System.out.println(i);
             }
         }
 
